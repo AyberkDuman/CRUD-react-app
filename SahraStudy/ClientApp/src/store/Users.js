@@ -1,40 +1,85 @@
-﻿import { useReducer } from "react";
-
-const requestUsersType = 'REQUEST_USERS';
+﻿const requestUsersType = 'REQUEST_USERS';
 const recieveUsersType = 'RECEIVE_USERS';
 const addUserType = 'ADD_USER';
-const initialState = { users: [], isLoading: false };
+const updateUserType = 'UPDATE_USER';
+const deleteUserType = 'DELETE_USER';
+const initialState = { users: [], user: {}, isLoading: false };
 
-const allusers = [
-    {
-        name: "isim1",
-        surname: "soyad1",
-        phoneNumber: "905111111111"
-    },
-    {
-        name: "isim2",
-        surname: "soyad2",
-        phoneNumber: "905222222222"
-    },
-    {
-        name: "isim3",
-        surname: "soyad3",
-        phoneNumber: "905333333333"
-    }
-]
+let allusers = [];
+let currentuser = {};
 
 export const actionCreators = {
     requestUsers: () => async (dispatch, getState) => {
 
         dispatch({ type: requestUsersType });
 
+        const url = 'https://60bc7706b8ab37001759f212.mockapi.io/api/users';
+        const response = await fetch(url);
+        const allusers = await response.json();
+
         dispatch({ type: recieveUsersType, allusers });
     },
 
-    addUser: (user) => async (dispatch, getState) => {
 
-        dispatch({ type: addUserType, user });
+    addUser: (user) => async (dispatch, getState) => {
+        const baseURL = "https://60bc7706b8ab37001759f212.mockapi.io/api/users";
+        const data = JSON.stringify(
+            {name: user.name, surname: user.surname, phoneNumber: user.phoneNumber}
+        );
+
+        const fetchTask = fetch(baseURL, {
+            method: "POST",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: data
+        })
+            .then((data) => {
+                dispatch({ type: addUserType, user: data });
+            });
+    },
+
+    updateUser: (user) => async (dispatch, getState) => {
+        const baseURL = "https://60bc7706b8ab37001759f212.mockapi.io/api/users";
+
+        const data = JSON.stringify(
+            { id: user.id, name: user.name, surname: user.surname, phoneNumber: user.phoneNumber }
+        );
+
+        const fetchTask = fetch(baseURL + "/" + user.id, {
+            method: "PUT",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: data
+        })
+            .then((data) => {
+                dispatch({ type: updateUserType, user: data });
+            });
+    },
+
+    deleteUser: (user) => async (dispatch, getState) => {
+        const baseURL = "https://60bc7706b8ab37001759f212.mockapi.io/api/users";
+
+        const data = JSON.stringify(
+            { id: user.id, name: user.name, surname: user.surname, phoneNumber: user.phoneNumber }
+        );
+
+        const fetchTask = fetch(baseURL + "/" + user.id, {
+            method: "DELETE",
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+            },
+            body: data
+        })
+            .then((data) => {
+                dispatch({ type: deleteUserType, user: data });
+            });
     }
+
 
 };
 
@@ -57,13 +102,22 @@ export const reducer = (state, action) => {
     }
 
     if (action.type === addUserType) {
-        var newusers = allusers;
-
-        newusers.push({ name: action.user.name, surname: action.user.surname, phoneNumber: action.user.phoneNumber })
-
         return {
             ...state,
-            users: newusers,
+            isLoading: false
+        };
+    }
+
+    if (action.type === updateUserType) {
+        return {
+            ...state,
+            isLoading: false
+        };
+    }
+
+    if (action.type === deleteUserType) {
+        return {
+            ...state,
             isLoading: false
         };
     }

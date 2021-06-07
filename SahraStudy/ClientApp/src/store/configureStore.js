@@ -7,7 +7,7 @@ import * as Users from './Users';
 
 export default function configureStore(history, initialState) {
   const reducers = {
-      users: Users.reducer,
+     users: Users.reducer,
     counter: Counter.reducer,
     weatherForecasts: WeatherForecasts.reducer
   };
